@@ -1,0 +1,5 @@
+enum ConfigRoboIntent {
+  ESCOLHER_CONFIG,
+  CRIAR_ACAO,
+  EXECUTAR_ACAO,
+}
