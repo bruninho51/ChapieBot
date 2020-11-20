@@ -39,20 +39,19 @@ class AcaoRoboRepository {
 
       List<AcaoRobo> robos = List<AcaoRobo>();
 
-      if (result.length > 0) {
-        result.forEach((roboMap) async => {
-          robos.add(AcaoRobo(
-            id: roboMap['id'],
-            robo: await RoboRepository.getById(int.parse(roboMap['id_robo'])),
-            nome: roboMap['nome'],
-            descricao: roboMap['descricao'],
-            createdAt: DateHelper.secondsToDateTime(roboMap['createdAt'] ?? 0),
-            updatedAt: DateHelper.secondsToDateTime(roboMap['updatedAt'] ?? 0),
-            deletedAt: DateHelper.secondsToDateTime(roboMap['deletedAt'] ?? 0)
-          ))
-        });
+     
+      for (var roboMap in result) {
+        robos.add(AcaoRobo(
+          id: roboMap['id'],
+          robo: await RoboRepository.getById(roboMap['id_robo']),
+          nome: roboMap['nome'],
+          descricao: roboMap['descricao'],
+          createdAt: DateHelper.secondsToDateTime(roboMap['createdAt'] ?? 0),
+          updatedAt: DateHelper.secondsToDateTime(roboMap['updatedAt'] ?? 0),
+          deletedAt: DateHelper.secondsToDateTime(roboMap['deletedAt'] ?? 0)
+        ));
       }
-
+      
       return Future.value(robos);
   }
 

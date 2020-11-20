@@ -3,20 +3,41 @@ import 'package:chap_flutter/component/message_box.dart';
 import 'package:chap_flutter/config/chatbot_config_robo_config.dart';
 import 'package:chap_flutter/intent/config_robo_intent.dart';
 import 'package:chap_flutter/model/execucao_acao_robo.dart';
+import 'package:chap_flutter/model/robo.dart';
 import 'package:chap_flutter/repository/execucao_acao_robo_repository.dart';
 import 'package:chap_flutter/store/chat_config_robo_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class Chatbot extends StatefulWidget {
+
+  final Robo robo;
+
+  Chatbot({this.robo});
+
   @override
   _ChatbotState createState() => _ChatbotState();
 }
 
 class _ChatbotState extends State<Chatbot> {
-  final ChatConfigRoboStore store = new ChatConfigRoboStore();
 
-  var listScrollController = new ScrollController();
+  ChatConfigRoboStore store;
+
+  final listScrollController = new ScrollController();
+  final nomeAcaoController = TextEditingController();
+
+  @override
+  initState() {
+    super.initState();
+    this.store = new ChatConfigRoboStore(robo: widget.robo);
+  }
+
+  @override
+  void dispose() {
+    listScrollController.dispose();
+    nomeAcaoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +108,8 @@ class _ChatbotState extends State<Chatbot> {
         optionButton(
           text: 'Executar Ação',
           onPressed: () async {
-            await store.addMessage(msg: 'Quero executar uma ação ', owner: 'user');
+            await store.addMessage(
+                msg: 'Quero executar uma ação ', owner: 'user');
             store.executarIntentExecutarAcao();
           },
         ),
@@ -96,20 +118,43 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget entradaNomeAcao() {
-    return TextField(
-      decoration: InputDecoration(
-        icon: new IconTheme(
-          data: new IconThemeData(
-            color: Colors.white), 
-            child: new Icon(Icons.send),
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Container(
+        width: MediaQuery.of(context).size.width * 0.75,
+        child: TextField(
+          controller: nomeAcaoController,
+          decoration: InputDecoration(
+            hintText: 'Digite o nome da ação',
+            counterText: '',
+            border: const OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.white,
+          ),
         ),
-        hintText: 'Digite o nome da ação',
-        counterText: '',
-        border: const OutlineInputBorder(),
-        filled: true,
-        fillColor: Colors.white,
       ),
-    );
+      Container(
+        width: MediaQuery.of(context).size.width * 0.2,
+        height: MediaQuery.of(context).size.width * 0.2,
+        padding: EdgeInsets.only(left: 10),
+        child: FlatButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+              side: BorderSide(color: Colors.transparent),
+            ),
+            color: Colors.transparent,
+            textColor: Colors.transparent,
+            onPressed: () {
+              store.criarAcaoRobo(nomeAcaoController.text);
+            },
+            child: IconTheme(
+              data: IconThemeData(
+                color: Colors.white,
+                size: 32,
+              ),
+              child: Icon(Icons.send),
+            )),
+      )
+    ]);
   }
 
   Widget seletorAcaoParaExecucao() {
@@ -119,13 +164,16 @@ class _ChatbotState extends State<Chatbot> {
       itemBuilder: (context, index) => optionButton(
         text: store.acoesRobo[index].nome,
         onPressed: () async {
-          await ExecucaoAcaoRoboRepository.save(new ExecucaoAcaoRobo(
-            acao: store.acoesRobo[index]
-          ));
-          store.addMessage(msg: store.acoesRobo[index].nome, owner: 'user').then(
+          await ExecucaoAcaoRoboRepository.save(
+              new ExecucaoAcaoRobo(acao: store.acoesRobo[index]));
+          store
+              .addMessage(msg: store.acoesRobo[index].nome, owner: 'user')
+              .then(
             (bool messageWrited) {
               Timer(
-                Duration(seconds: ChatbotConfigRoboConfig.CHATBOT_READING_TIME_SECOND),
+                Duration(
+                    seconds:
+                        ChatbotConfigRoboConfig.CHATBOT_READING_TIME_SECOND),
                 () async => store.executarIntentEscolherConfig(),
               );
             },
@@ -146,23 +194,23 @@ class _ChatbotState extends State<Chatbot> {
 
   Widget optionButton({String text, Function onPressed}) {
     return Container(
-        margin: EdgeInsets.only(right: 8, top: 2, bottom: 2),
-          child: FlatButton(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
-              side: BorderSide(color: Colors.red)),
-            color: Colors.white,
-            textColor: Colors.red,
-            padding: EdgeInsets.all(8.0),
-            onPressed: onPressed,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 14.0,
-              ),
-            ),
+      margin: EdgeInsets.only(right: 8, top: 2, bottom: 2),
+      child: FlatButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
+          side: BorderSide(color: Colors.red),
+        ),
+        color: Colors.white,
+        textColor: Colors.red,
+        padding: EdgeInsets.all(8.0),
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14.0,
           ),
-    ); 
-    
+        ),
+      ),
+    );
   }
 }

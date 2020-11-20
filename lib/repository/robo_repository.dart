@@ -63,7 +63,7 @@ class RoboRepository {
       return Future.value(Robo(
         id: roboMap['id'],
         nome: roboMap['nome'],
-        cor: CorRobo.getColorById(roboMap['cor']),
+        cor: CorRobo.getColorById(int.parse(roboMap['cor'])),
         createdAt: DateHelper.secondsToDateTime(roboMap['createdAt'] ?? 0),
         updatedAt: DateHelper.secondsToDateTime(roboMap['updatedAt'] ?? 0),
         deletedAt: DateHelper.secondsToDateTime(roboMap['deletedAt'] ?? 0)

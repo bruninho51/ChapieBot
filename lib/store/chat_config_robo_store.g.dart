@@ -18,6 +18,21 @@ mixin _$ChatConfigRoboStore on ChatConfigRoboStoreBase, Store {
               name: 'ChatConfigRoboStoreBase.reversedMessages'))
           .value;
 
+  final _$roboAtom = Atom(name: 'ChatConfigRoboStoreBase.robo');
+
+  @override
+  Robo get robo {
+    _$roboAtom.reportRead();
+    return super.robo;
+  }
+
+  @override
+  set robo(Robo value) {
+    _$roboAtom.reportWrite(value, super.robo, () {
+      super.robo = value;
+    });
+  }
+
   final _$intentAtom = Atom(name: 'ChatConfigRoboStoreBase.intent');
 
   @override
@@ -112,8 +127,20 @@ mixin _$ChatConfigRoboStore on ChatConfigRoboStoreBase, Store {
   }
 
   @override
+  dynamic setRobo(Robo robo) {
+    final _$actionInfo = _$ChatConfigRoboStoreBaseActionController.startAction(
+        name: 'ChatConfigRoboStoreBase.setRobo');
+    try {
+      return super.setRobo(robo);
+    } finally {
+      _$ChatConfigRoboStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
+robo: ${robo},
 intent: ${intent},
 messages: ${messages},
 loadingMessages: ${loadingMessages},

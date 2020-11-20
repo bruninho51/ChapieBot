@@ -2,6 +2,7 @@ import 'package:chap_flutter/component/card_robo.dart';
 import 'package:chap_flutter/component/drawer_app.dart';
 import 'package:chap_flutter/model/robo.dart';
 import 'package:chap_flutter/repository/robo_repository.dart';
+import 'package:chap_flutter/view/chatbot.dart';
 import 'package:flutter/material.dart';
 
 class ListaRobo extends StatefulWidget {
@@ -52,7 +53,12 @@ class _ListaRoboState extends State<ListaRobo> {
         return CardRobo(
           robo: robos[index],
           onTap: () {
-            Navigator.pushNamed(context, '/chatbot');
+            Navigator.push(
+              context, 
+              MaterialPageRoute(
+                builder: (_) => Chatbot(robo: robos[index]),
+              )
+            );
           },
           onDismissed: (direction) {
             setState(() {});

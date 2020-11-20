@@ -2,6 +2,7 @@ import 'package:chap_flutter/config/chatbot_config_robo_config.dart';
 import 'package:chap_flutter/intent/config_robo_intent.dart';
 import 'package:chap_flutter/model/acao_robo.dart';
 import 'package:chap_flutter/model/message.dart';
+import 'package:chap_flutter/model/robo.dart';
 import 'package:chap_flutter/repository/acao_robo_repository.dart';
 import "package:mobx/mobx.dart";
 part "chat_config_robo_store.g.dart";
@@ -10,7 +11,8 @@ class ChatConfigRoboStore = ChatConfigRoboStoreBase with _$ChatConfigRoboStore;
 
 abstract class ChatConfigRoboStoreBase with Store {
 
-  ChatConfigRoboStoreBase() {
+  ChatConfigRoboStoreBase({robo}) {
+    setRobo(robo);
     init();
   }
 
@@ -21,7 +23,7 @@ abstract class ChatConfigRoboStoreBase with Store {
 
   executarIntentEscolherConfig() async {
     await addMessage(
-      msg: 'Olá! O que você deseja fazer?',
+      msg: "Olá! Eu sou O ${robo.nome} que você deseja fazer?",
       owner: 'bot'
     );
     setIntent(ConfigRoboIntent.ESCOLHER_CONFIG);
@@ -33,6 +35,30 @@ abstract class ChatConfigRoboStoreBase with Store {
       owner: 'bot'
     );
     setIntent(ConfigRoboIntent.CRIAR_ACAO);
+  }
+
+  criarAcaoRobo(String nomeAcao) async {
+
+    AcaoRobo acao = new AcaoRobo(
+      robo: this.robo,
+      nome: nomeAcao, 
+      descricao: nomeAcao,
+    );
+
+    AcaoRoboRepository.save(acao)
+      .then((_) {
+        addMessage(
+          msg: "Ação criada - $nomeAcao",
+          owner: 'bot'
+        );
+        init();
+      })
+      .catchError((onError) {
+        addMessage(
+          msg: 'Desculpe, não consegui salvar a ação', 
+          owner: 'bot'
+        );
+      });
   }
 
   executarIntentExecutarAcao() async {
@@ -52,6 +78,9 @@ abstract class ChatConfigRoboStoreBase with Store {
     setIntent(ConfigRoboIntent.EXECUTAR_ACAO);
     
   }
+
+  @observable
+  Robo robo;
 
   @observable
   ConfigRoboIntent intent;
@@ -77,6 +106,11 @@ abstract class ChatConfigRoboStoreBase with Store {
   @action
   setIntent(ConfigRoboIntent intent) {
     this.intent = intent;
+  }
+
+  @action
+  setRobo(Robo robo) {
+    this.robo = robo;
   }
 
   @action
