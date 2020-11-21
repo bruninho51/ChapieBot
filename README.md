@@ -1,6 +1,7 @@
 # Chap Flutter
 
 Projeto criado como parte das atividades do curso de Sistemas de Informação da FIAP.
+<b>Prints do projeto se encontram na pasta prints.</b>:camera:
 
 
 ## Iniciando o Projeto
@@ -12,7 +13,7 @@ git clone https://github.com/bruninho51/ChapieBot.git
 flutter pub get
 ```
 
-## Filme Chappie
+## Filme Chappie:robot:
 
 O projeto é baseado no filme Chappie. lançado em 2015, conta a história de um robô chamado Chappie. Seu destino era ser um policial robótico criado para patrulhar as ruas de Joanesburgo, na África do Sul, porém ele é roubado,  reprogramado, e acaba caindo nas mãos de bandidos. No decorrer da trama, Chappie desenvolve sua identidade. sofrendo influência dos que o cercam, o robô deve confiar em seus sentimentos para encontrar seu caminho e moldar sua personalidade.
 
