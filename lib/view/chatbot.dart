@@ -5,12 +5,12 @@ import 'package:chap_flutter/intent/config_robo_intent.dart';
 import 'package:chap_flutter/model/execucao_acao_robo.dart';
 import 'package:chap_flutter/model/robo.dart';
 import 'package:chap_flutter/repository/execucao_acao_robo_repository.dart';
+import 'package:chap_flutter/service/scrap.dart';
 import 'package:chap_flutter/store/chat_config_robo_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class Chatbot extends StatefulWidget {
-
   final Robo robo;
 
   Chatbot({this.robo});
@@ -20,7 +20,6 @@ class Chatbot extends StatefulWidget {
 }
 
 class _ChatbotState extends State<Chatbot> {
-
   ChatConfigRoboStore store;
 
   final listScrollController = new ScrollController();
@@ -47,21 +46,23 @@ class _ChatbotState extends State<Chatbot> {
         children: [
           Container(
             height: MediaQuery.of(context).size.height * 0.77,
-            child: Expanded(
-              child: Observer(
-                builder: (context) => ListView.builder(
-                  itemCount: store.reversedMessages.length,
-                  controller: listScrollController,
-                  reverse: true,
-                  itemBuilder: (_, index) => MessageBox(
-                    index: index,
-                    msg: store.reversedMessages[index].msg,
-                    owner: store.reversedMessages[index].owner,
-                    writing: store.reversedMessages[index].writing,
+            child: Column(children: [
+              Expanded(
+                child: Observer(
+                  builder: (context) => ListView.builder(
+                    itemCount: store.reversedMessages.length,
+                    controller: listScrollController,
+                    reverse: true,
+                    itemBuilder: (_, index) => MessageBox(
+                      index: index,
+                      msg: store.reversedMessages[index].msg,
+                      owner: store.reversedMessages[index].owner,
+                      writing: store.reversedMessages[index].writing,
+                    ),
                   ),
                 ),
               ),
-            ),
+            ]),
           ),
           SizedBox(
             child: Container(
@@ -109,7 +110,7 @@ class _ChatbotState extends State<Chatbot> {
           text: 'Executar Ação',
           onPressed: () async {
             await store.addMessage(
-                msg: 'Quero executar uma ação ', owner: 'user');
+                msg: 'Quero que você execute uma ação ', owner: 'user');
             store.executarIntentExecutarAcao();
           },
         ),
@@ -166,8 +167,14 @@ class _ChatbotState extends State<Chatbot> {
         onPressed: () async {
           await ExecucaoAcaoRoboRepository.save(
               new ExecucaoAcaoRobo(acao: store.acoesRobo[index]));
+
+          String frase = await Scrap.getFrase(store.acoesRobo[index].nome);
+
           store
-              .addMessage(msg: store.acoesRobo[index].nome, owner: 'user')
+              .addMessage(
+            msg: frase,
+            owner: 'user',
+          )
               .then(
             (bool messageWrited) {
               Timer(

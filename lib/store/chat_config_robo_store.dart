@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chap_flutter/config/chatbot_config_robo_config.dart';
 import 'package:chap_flutter/intent/config_robo_intent.dart';
 import 'package:chap_flutter/model/acao_robo.dart';
@@ -10,7 +12,6 @@ part "chat_config_robo_store.g.dart";
 class ChatConfigRoboStore = ChatConfigRoboStoreBase with _$ChatConfigRoboStore;
 
 abstract class ChatConfigRoboStoreBase with Store {
-
   ChatConfigRoboStoreBase({robo}) {
     setRobo(robo);
     init();
@@ -23,8 +24,8 @@ abstract class ChatConfigRoboStoreBase with Store {
 
   executarIntentEscolherConfig() async {
     await addMessage(
-      msg: "Olá! Eu sou O ${robo.nome} que você deseja fazer?",
-      owner: 'bot'
+      msg: "Olá! Eu sou o ${robo.nome}. O que você deseja fazer?",
+      owner: 'bot',
     );
     setIntent(ConfigRoboIntent.ESCOLHER_CONFIG);
   }
@@ -32,51 +33,48 @@ abstract class ChatConfigRoboStoreBase with Store {
   executarIntentCriarAcao() async {
     await addMessage(
       msg: 'Por favor, me informe o nome da ação que você deseja criar',
-      owner: 'bot'
+      owner: 'bot',
     );
     setIntent(ConfigRoboIntent.CRIAR_ACAO);
   }
 
   criarAcaoRobo(String nomeAcao) async {
-
     AcaoRobo acao = new AcaoRobo(
       robo: this.robo,
-      nome: nomeAcao, 
+      nome: nomeAcao,
       descricao: nomeAcao,
     );
 
-    AcaoRoboRepository.save(acao)
-      .then((_) {
-        addMessage(
-          msg: "Ação criada - $nomeAcao",
-          owner: 'bot'
-        );
-        init();
-      })
-      .catchError((onError) {
-        addMessage(
-          msg: 'Desculpe, não consegui salvar a ação', 
-          owner: 'bot'
-        );
-      });
+    try {
+      await AcaoRoboRepository.save(acao);
+      await addMessage(
+        msg: "Ação criada - ${acao.nome}",
+        owner: 'bot',
+      );
+      init();
+    } catch (e) {
+      addMessage(
+        msg: 'Desculpe, não consegui salvar a ação',
+        owner: 'bot',
+      );
+    }
   }
 
   executarIntentExecutarAcao() async {
     if (this.acoesRobo.length == 0) {
       await addMessage(
         msg: 'Nenhuma ação foi cadastrada. Não há ações para serem executadas!',
-        owner: 'bot'
+        owner: 'bot',
       );
       init();
       return;
     }
 
     await addMessage(
-      msg: 'Escolha a ação que você deseja executar',
-      owner: 'bot'
+      msg: 'Escolha uma ação, para que eu possa aprender mais sobre seu mundo',
+      owner: 'bot',
     );
     setIntent(ConfigRoboIntent.EXECUTAR_ACAO);
-    
   }
 
   @observable
@@ -89,8 +87,7 @@ abstract class ChatConfigRoboStoreBase with Store {
   ObservableList<Message> messages = <Message>[].asObservable();
 
   @observable
-  ObservableList<Message> loadingMessages =
-      <Message>[].asObservable();
+  ObservableList<Message> loadingMessages = <Message>[].asObservable();
 
   @computed
   ObservableList<Message> get reversedMessages {
@@ -125,8 +122,7 @@ abstract class ChatConfigRoboStoreBase with Store {
       loading = owner == 'bot';
     }
 
-    Message message =
-        new Message(msg: msg, owner: owner, writing: loading);
+    Message message = new Message(msg: msg, owner: owner, writing: loading);
 
     if (loading) {
       this.loadingMessages.add(message);
@@ -148,7 +144,6 @@ abstract class ChatConfigRoboStoreBase with Store {
 
   @action
   carregarAcoesRoboStore() async {
-    this.acoesRobo = (await AcaoRoboRepository.getAll()).asObservable();
+    this.acoesRobo = (await AcaoRoboRepository.getAll(robo.id)).asObservable();
   }
-
 }

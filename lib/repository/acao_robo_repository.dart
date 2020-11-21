@@ -32,10 +32,10 @@ class AcaoRoboRepository {
       }, where: 'id = ?', whereArgs: [acaoRobo.id]);
   }
 
-  static Future<List<AcaoRobo>> getAll() async {
+  static Future<List<AcaoRobo>> getAll(int idRobo) async {
       Database db = await _conexao.database;
 
-      List<Map<String, dynamic>> result = await db.query(table);
+      List<Map<String, dynamic>> result = await db.query(table, where: 'id_robo = ?', whereArgs: [idRobo]);
 
       List<AcaoRobo> robos = List<AcaoRobo>();
 
